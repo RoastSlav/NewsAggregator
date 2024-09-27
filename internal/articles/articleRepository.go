@@ -7,13 +7,13 @@ func insertArticle(article *Article) error {
 	return err
 }
 
-func getAllArticles() ([]Article, error) {
+func GetAllArticles() ([]Article, error) {
 	var articles []Article
 	err := database.DB.Select(&articles, "SELECT * FROM articles")
 	return articles, err
 }
 
-func getArticleById(id int) (Article, error) {
+func GetArticleById(id int) (Article, error) {
 	var article Article
 	err := database.DB.Get(&article, "SELECT * FROM articles WHERE id = ?", id)
 	return article, err
