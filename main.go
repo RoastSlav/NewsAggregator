@@ -2,8 +2,8 @@ package main
 
 import (
 	"NewsAggregator/database"
+	"NewsAggregator/internal"
 	"NewsAggregator/internal/articles"
-	"fmt"
 	"log"
 )
 
@@ -15,12 +15,8 @@ func main() {
 
 	articles.FetchArticlesFromNewsAPI()
 
-	allArticles, err := articles.GetAllArticles()
+	err = Api.StartServer()
 	if err != nil {
-		log.Fatalf("Failed to get all articles: %v", err)
-	}
-
-	for _, article := range allArticles {
-		fmt.Printf("Title: %s Published at: %v\n", article.Title, article.PublishedAt)
+		log.Fatal(err)
 	}
 }
