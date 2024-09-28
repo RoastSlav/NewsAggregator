@@ -1,12 +1,15 @@
 package Api
 
 import (
+	"NewsAggregator/internal/articles"
+	"NewsAggregator/internal/users"
 	"log"
 	"net/http"
 )
 
 func registerHandlers() {
-	http.HandleFunc("/articles", GetAllArticlesHandler)
+	http.HandleFunc("/articles", articles.GetAllArticlesHandler)
+	http.HandleFunc("/register", users.RegisterUserHandler)
 }
 
 func StartServer() error {

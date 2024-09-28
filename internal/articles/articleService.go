@@ -1,14 +1,13 @@
-package Api
+package articles
 
 import (
-	"NewsAggregator/internal/articles"
 	"encoding/json"
 	"log"
 	"net/http"
 )
 
 func GetAllArticlesHandler(w http.ResponseWriter, r *http.Request) {
-	articles, err := articles.GetAllArticles()
+	articles, err := GetAllArticles()
 	if err != nil {
 		http.Error(w, "Failed to get all articles", http.StatusInternalServerError)
 		return
