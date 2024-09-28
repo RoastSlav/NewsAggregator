@@ -55,8 +55,10 @@ NewsAggregator is a Go-based application that fetches articles from various news
 ## Project Structure
 
 - `main.go`: Entry point of the application.
-- `internal/api.go`: Contains the API handlers.
+- `internal/server.go`: Contains server setup and handler registration.
 - `internal/articles`: Contains logic for fetching and processing articles.
+- `internal/users`: Contains logic for user registration and login.
+- `internal/util/errorUtil.go`: Utility functions for error handling.
 - `database/database.go`: Handles database connection.
 - `go.mod`: Go module dependencies.
 
