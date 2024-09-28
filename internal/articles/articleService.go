@@ -1,6 +1,7 @@
 package articles
 
 import (
+	"NewsAggregator/internal/util"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,27 +18,19 @@ func FetchArticlesFromNewsAPI(topic string) {
 	url := fmt.Sprintf(newsEverythingEndpointUrl+"q=%s&apiKey=%s", topic, apiKey)
 
 	get, err := http.Get(url)
-	if err != nil {
-		log.Fatalf("Failed to fetch article: %v", err)
-	}
+	Util.CheckErrorAndLog(err, "Failed to fetch articles from News API")
 
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
-		if err != nil {
-			log.Fatalf("Failed to close response body: %v", err)
-		}
+		Util.CheckErrorAndLog(err, "Failed to close response body")
 	}(get.Body)
 
 	body, err := io.ReadAll(get.Body)
-	if err != nil {
-		log.Fatalf("Failed to read response body: %v", err)
-	}
+	Util.CheckErrorAndLog(err, "Failed to read response body")
 
 	var newsAPIResponse NewsAPIResponse
 	err = json.Unmarshal(body, &newsAPIResponse)
-	if err != nil {
-		log.Fatalf("Failed to unmarshal JSON: %v", err)
-	}
+	Util.CheckErrorAndLog(err, "Failed to unmarshal response body")
 
 	if newsAPIResponse.Status != "ok" {
 		log.Fatalf("Failed to fetch articles from News API: %s", newsAPIResponse.Message)
@@ -46,24 +39,22 @@ func FetchArticlesFromNewsAPI(topic string) {
 	for _, article := range newsAPIResponse.Articles {
 		article.CreatedAt = time.Now()
 		err = insertArticle(&article)
-		if err != nil {
-			log.Fatalf("Failed to insert article: %v", err)
-		}
+		Util.CheckErrorAndLog(err, "Failed to insert article")
 	}
 
 	log.Printf("Fetched %d articles from News API", newsAPIResponse.TotalResults)
 }
 
 func GetAllArticlesHandler(w http.ResponseWriter, r *http.Request) {
-	articles, err := GetAllArticles()
-	if err != nil {
-		http.Error(w, "Failed to get all articles", http.StatusInternalServerError)
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
+	articles, err := GetAllArticles()
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get all articles", http.StatusInternalServerError)
+
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(articles); err != nil {
-		log.Printf("Failed to encode articles: %v", err)
-		http.Error(w, "Failed to encode articles", http.StatusInternalServerError)
-	}
+	err = json.NewEncoder(w).Encode(articles)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to encode articles", http.StatusInternalServerError)
 }
