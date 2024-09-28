@@ -1,1 +1,2 @@
-ALTER TABLE articles MODIFY published_at TIMESTAMP;
+ALTER TABLE articles
+    MODIFY published_at TIMESTAMP;
