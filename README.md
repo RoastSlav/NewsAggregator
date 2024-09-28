@@ -62,6 +62,13 @@ NewsAggregator is a Go-based application that fetches articles from various news
 - `database/database.go`: Handles database connection.
 - `go.mod`: Go module dependencies.
 
+## Libraries Used
+
+- `github.com/go-sql-driver/mysql`: MySQL driver for Go.
+- `github.com/jmoiron/sqlx`: General purpose extensions to database/sql.
+- `github.com/joho/godotenv`: Go port of Ruby's dotenv library (loads environment variables from `.env`).
+- `golang.org/x/crypto`: Supplementary Go cryptography libraries.
+
 ## Future Improvements
 
 - **Search and Filtering**
