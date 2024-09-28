@@ -13,7 +13,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	articles.FetchArticlesFromNewsAPI()
+	articles.FetchArticlesFromNewsAPI("technology")
 
 	err = Api.StartServer()
 	if err != nil {

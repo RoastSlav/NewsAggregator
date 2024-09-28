@@ -20,6 +20,8 @@ type NewsAPIResponse struct {
 	Status       string    `json:"status"`
 	TotalResults int       `json:"totalResults"`
 	Articles     []Article `json:"articles"`
+	Code         string    `json:"code"`
+	Message      string    `json:"message"`
 }
 
 type Source struct {

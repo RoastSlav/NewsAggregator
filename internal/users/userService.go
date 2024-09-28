@@ -3,6 +3,8 @@ package users
 import (
 	"encoding/json"
 	"golang.org/x/crypto/bcrypt"
+	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -13,7 +15,12 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer r.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			http.Error(w, "Failed to close request body", http.StatusInternalServerError)
+		}
+	}(r.Body)
 
 	var user UserRegistration
 	decoder := json.NewDecoder(r.Body)
@@ -40,4 +47,6 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to insert user", http.StatusInternalServerError)
 		return
 	}
+
+	log.Fatalln("User registered")
 }

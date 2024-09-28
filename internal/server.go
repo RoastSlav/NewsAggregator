@@ -9,7 +9,7 @@ import (
 
 func registerHandlers() {
 	http.HandleFunc("/articles", articles.GetAllArticlesHandler)
-	http.HandleFunc("/register", users.RegisterUserHandler)
+	http.HandleFunc("/user/register", users.RegisterUserHandler)
 }
 
 func StartServer() error {
