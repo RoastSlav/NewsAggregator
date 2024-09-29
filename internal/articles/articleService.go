@@ -75,6 +75,10 @@ func SearchArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&searchArticle)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
 
+	if searchArticle.PublishedFrom.After(searchArticle.PublishedTo) {
+		http.Error(w, "PublishedFrom date cannot be after PublishedTo date", http.StatusBadRequest)
+	}
+
 	articles, err := SearchArticles(searchArticle)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to search articles", http.StatusInternalServerError)
 

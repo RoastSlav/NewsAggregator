@@ -17,12 +17,13 @@ type Article struct {
 }
 
 type SearchArticle struct {
-	SourceID    string `json:"source.id"`
-	SourceName  string `json:"source.name"`
-	Author      string `json:"author"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	PublishedAt string `json:"publishedAt"`
+	SourceID      string    `json:"source.id"`
+	SourceName    string    `json:"source.name"`
+	Author        string    `json:"author"`
+	Title         string    `json:"title"`
+	Description   string    `json:"description"`
+	PublishedFrom time.Time `json:"publishedFrom"`
+	PublishedTo   time.Time `json:"publishedTo"`
 }
 
 type NewsAPIResponse struct {

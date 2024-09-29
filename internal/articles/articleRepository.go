@@ -55,11 +55,19 @@ func SearchArticles(article SearchArticle) ([]Article, error) {
 		requiresAnd = true
 	}
 
-	if article.PublishedAt != "" {
+	if !article.PublishedFrom.IsZero() {
 		if requiresAnd {
 			querry += " AND "
 		}
-		querry += "published_at = '" + article.PublishedAt + "'"
+		querry += "published_at >= '" + article.PublishedFrom.String() + "'"
+		requiresAnd = true
+	}
+
+	if !article.PublishedTo.IsZero() {
+		if requiresAnd {
+			querry += " AND "
+		}
+		querry += "published_at <= '" + article.PublishedTo.String() + "'"
 	}
 
 	var articles []Article
