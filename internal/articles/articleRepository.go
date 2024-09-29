@@ -1,19 +1,26 @@
 package articles
 
-import "NewsAggregator/database"
+import (
+	"NewsAggregator/database"
+	"strconv"
+)
 
 func insertArticle(article *Article) error {
 	_, err := database.DB.NamedExec("INSERT IGNORE INTO articles (title, content, source_id, source_name, author, description, url, url_to_image, published_at, created_at) VALUES (:title, :content, :source_id, :source_name, :author, :description, :url, :url_to_image, :published_at, :created_at)", article)
 	return err
 }
 
-func GetAllArticles() ([]Article, error) {
+func GetAllArticles(page int, limit int) ([]Article, error) {
 	var articles []Article
-	err := database.DB.Select(&articles, "SELECT * FROM articles")
+
+	if limit == 0 {
+		limit = 10
+	}
+	err := database.DB.Select(&articles, "SELECT * FROM articles LIMIT ? OFFSET ?", limit, limit*(page-1))
 	return articles, err
 }
 
-func SearchArticles(article SearchArticle) ([]Article, error) {
+func SearchArticles(article SearchArticleRequest) ([]Article, error) {
 	querry := "SELECT * FROM articles WHERE "
 
 	requiresAnd := false
@@ -69,6 +76,11 @@ func SearchArticles(article SearchArticle) ([]Article, error) {
 		}
 		querry += "published_at <= '" + article.PublishedTo.String() + "'"
 	}
+
+	if article.Limit == 0 {
+		article.Limit = 10
+	}
+	querry += " LIMIT " + strconv.Itoa(article.Limit) + " OFFSET " + strconv.Itoa(article.Limit*(article.Page-1))
 
 	var articles []Article
 	err := database.DB.Select(&articles, querry)

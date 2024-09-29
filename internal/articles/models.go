@@ -16,7 +16,7 @@ type Article struct {
 	CreatedAt   time.Time `db:"created_at"`
 }
 
-type SearchArticle struct {
+type SearchArticleRequest struct {
 	SourceID      string    `json:"source.id"`
 	SourceName    string    `json:"source.name"`
 	Author        string    `json:"author"`
@@ -24,6 +24,27 @@ type SearchArticle struct {
 	Description   string    `json:"description"`
 	PublishedFrom time.Time `json:"publishedFrom"`
 	PublishedTo   time.Time `json:"publishedTo"`
+	Page          int       `json:"page"`
+	Limit         int       `json:"limit"`
+}
+
+type SearchArticleResponse struct {
+	TotalResults int       `json:"totalResults"`
+	Page         int       `json:"page"`
+	Limit        int       `json:"limit"`
+	Articles     []Article `json:"articles"`
+}
+
+type EveryArticleRequest struct {
+	Page  int `json:"page"`
+	Limit int `json:"limit"`
+}
+
+type EveryArticleResponse struct {
+	TotalResults int       `json:"totalResults"`
+	Page         int       `json:"page"`
+	Limit        int       `json:"limit"`
+	Articles     []Article `json:"articles"`
 }
 
 type NewsAPIResponse struct {

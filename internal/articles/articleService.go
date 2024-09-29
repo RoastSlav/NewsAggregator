@@ -51,11 +51,32 @@ func GetAllArticlesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	articles, err := GetAllArticles()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		Util.CheckErrorAndSendHttpResponse(err, w, "Failed to close request body", http.StatusInternalServerError)
+	}(r.Body)
+
+	var everyArticleRequest EveryArticleRequest
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&everyArticleRequest)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
+
+	if everyArticleRequest.Page < 1 {
+		http.Error(w, "Page must be greater than 0", http.StatusBadRequest)
+	}
+
+	articles, err := GetAllArticles(everyArticleRequest.Page, everyArticleRequest.Limit)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get all articles", http.StatusInternalServerError)
 
+	response := EveryArticleResponse{
+		Articles:     articles,
+		TotalResults: len(articles),
+		Page:         everyArticleRequest.Page,
+		Limit:        everyArticleRequest.Limit,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(articles)
+	err = json.NewEncoder(w).Encode(response)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to encode articles", http.StatusInternalServerError)
 }
 
@@ -70,19 +91,30 @@ func SearchArticlesHandler(w http.ResponseWriter, r *http.Request) {
 		Util.CheckErrorAndSendHttpResponse(err, w, "Failed to close request body", http.StatusInternalServerError)
 	}(r.Body)
 
-	var searchArticle SearchArticle
+	var searchArticleRequest SearchArticleRequest
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&searchArticle)
+	err := decoder.Decode(&searchArticleRequest)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
 
-	if searchArticle.PublishedFrom.After(searchArticle.PublishedTo) {
+	if searchArticleRequest.PublishedFrom.After(searchArticleRequest.PublishedTo) {
 		http.Error(w, "PublishedFrom date cannot be after PublishedTo date", http.StatusBadRequest)
 	}
 
-	articles, err := SearchArticles(searchArticle)
+	if searchArticleRequest.Page < 1 {
+		http.Error(w, "Page must be greater than 0", http.StatusBadRequest)
+	}
+
+	articles, err := SearchArticles(searchArticleRequest)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to search articles", http.StatusInternalServerError)
 
+	response := SearchArticleResponse{
+		Articles:     articles,
+		TotalResults: len(articles),
+		Page:         searchArticleRequest.Page,
+		Limit:        searchArticleRequest.Limit,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(articles)
+	err = json.NewEncoder(w).Encode(response)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to encode articles", http.StatusInternalServerError)
 }
