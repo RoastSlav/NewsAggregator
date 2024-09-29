@@ -10,6 +10,8 @@ import (
 
 func registerHandlers() {
 	http.HandleFunc("/articles", articles.GetAllArticlesHandler)
+	http.HandleFunc("/articles/search", articles.SearchArticlesHandler)
+
 	http.HandleFunc("/user/register", users.RegisterUserHandler)
 	http.HandleFunc("/user/login", users.LoginUserHandler)
 }

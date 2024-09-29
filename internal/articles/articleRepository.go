@@ -13,6 +13,60 @@ func GetAllArticles() ([]Article, error) {
 	return articles, err
 }
 
+func SearchArticles(article SearchArticle) ([]Article, error) {
+	querry := "SELECT * FROM articles WHERE "
+
+	requiresAnd := false
+
+	if article.SourceID != "" {
+		querry += "source_id LIKE '%" + article.SourceID + "%'"
+		requiresAnd = true
+	}
+
+	if article.SourceName != "" {
+		if requiresAnd {
+			querry += " AND "
+		}
+		querry += "source_name LIKE '%" + article.SourceName + "%'"
+		requiresAnd = true
+	}
+
+	if article.Author != "" {
+		if requiresAnd {
+			querry += " AND "
+		}
+		querry += "author LIKE '%" + article.Author + "%'"
+		requiresAnd = true
+	}
+
+	if article.Title != "" {
+		if requiresAnd {
+			querry += " AND "
+		}
+		querry += "title LIKE '%" + article.Title + "%'"
+		requiresAnd = true
+	}
+
+	if article.Description != "" {
+		if requiresAnd {
+			querry += " AND "
+		}
+		querry += "description LIKE '%" + article.Description + "%'"
+		requiresAnd = true
+	}
+
+	if article.PublishedAt != "" {
+		if requiresAnd {
+			querry += " AND "
+		}
+		querry += "published_at = '" + article.PublishedAt + "'"
+	}
+
+	var articles []Article
+	err := database.DB.Select(&articles, querry)
+	return articles, err
+}
+
 func GetArticleById(id int) (Article, error) {
 	var article Article
 	err := database.DB.Get(&article, "SELECT * FROM articles WHERE id = ?", id)

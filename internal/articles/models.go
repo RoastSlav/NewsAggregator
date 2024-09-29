@@ -16,6 +16,15 @@ type Article struct {
 	CreatedAt   time.Time `db:"created_at"`
 }
 
+type SearchArticle struct {
+	SourceID    string `json:"source.id"`
+	SourceName  string `json:"source.name"`
+	Author      string `json:"author"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	PublishedAt string `json:"publishedAt"`
+}
+
 type NewsAPIResponse struct {
 	Status       string    `json:"status"`
 	TotalResults int       `json:"totalResults"`

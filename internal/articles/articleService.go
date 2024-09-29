@@ -58,3 +58,27 @@ func GetAllArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(articles)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to encode articles", http.StatusInternalServerError)
 }
+
+func SearchArticlesHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		Util.CheckErrorAndSendHttpResponse(err, w, "Failed to close request body", http.StatusInternalServerError)
+	}(r.Body)
+
+	var searchArticle SearchArticle
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&searchArticle)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
+
+	articles, err := SearchArticles(searchArticle)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to search articles", http.StatusInternalServerError)
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(articles)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to encode articles", http.StatusInternalServerError)
+}
