@@ -8,6 +8,8 @@ NewsAggregator is a Go-based application that fetches articles from various news
 - Serve articles through a RESTful API.
 - Connect to a MySQL database for storing articles.
 - User profiles with registration and login.
+- Pagination for articles.
+- Search for articles.
 
 ## Requirements
 
@@ -51,6 +53,7 @@ NewsAggregator is a Go-based application that fetches articles from various news
 - `GET /articles`: Retrieve all articles.
 - `POST /user/register`: Register a new user.
 - `POST /user/login`: Log in an existing user.
+- `GET /articles/search`: Search and filter articles.
 
 ## Project Structure
 
@@ -68,14 +71,10 @@ NewsAggregator is a Go-based application that fetches articles from various news
 - `github.com/jmoiron/sqlx`: General purpose extensions to database/sql.
 - `github.com/joho/godotenv`: Go port of Ruby's dotenv library (loads environment variables from `.env`).
 - `golang.org/x/crypto`: Supplementary Go cryptography libraries.
+- `filippo.io/edwards25519`: Go implementation of the Edwards-curve Digital Signature Algorithm (EdDSA).
 
 ## Future Improvements
 
-- **Search and Filtering**
-  - Add a `GET /articles/search` endpoint to allow searching for articles based on keywords, author, or source.
-  - Include filtering options (e.g., date range, category) in the `GET /articles` endpoint to refine search results.
-- **Pagination**
-  - Implement pagination for the `GET /articles` endpoint using query parameters like `page` and `limit` to control the number of articles returned per request.
 - **Categories and Tags**
   - Enhance articles with categories (e.g., Technology, Health, Sports) and tags (e.g., AI, Python, Economy).
   - Implement endpoints for filtering articles by category or tags (e.g., `GET /articles?category=technology`).
