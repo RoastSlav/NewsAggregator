@@ -1,7 +1,7 @@
 package users
 
 import (
-	"NewsAggregator/database"
+	"NewsAggregator/internal/database"
 	"time"
 )
 

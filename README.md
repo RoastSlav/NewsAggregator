@@ -43,7 +43,7 @@ NewsAggregator is a Go-based application that fetches articles from various news
 
 1. Run the application:
     ```sh
-    go run main.go
+    go run newsAggregator.go
     ```
 
 2. The server will start, and you can access the API at `http://localhost:8080`.

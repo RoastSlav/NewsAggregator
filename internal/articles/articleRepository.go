@@ -1,7 +1,7 @@
 package articles
 
 import (
-	"NewsAggregator/database"
+	"NewsAggregator/internal/database"
 	"strconv"
 )
 
