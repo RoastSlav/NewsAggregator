@@ -24,8 +24,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 	}(r.Body)
 
 	var user UserRegistration
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&user)
+	err := json.NewDecoder(r.Body).Decode(&user)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -57,8 +56,7 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 	}(r.Body)
 
 	var userLogin UserLogin
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&userLogin)
+	err := json.NewDecoder(r.Body).Decode(&userLogin)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
 
 	user, err := GetUserByEmail(userLogin.Email)

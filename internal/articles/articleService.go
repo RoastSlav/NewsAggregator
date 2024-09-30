@@ -25,12 +25,8 @@ func FetchArticlesFromNewsAPI(topic string) {
 		Util.CheckErrorAndLog(err, "Failed to close response body")
 	}(get.Body)
 
-	body, err := io.ReadAll(get.Body)
-	Util.CheckErrorAndLog(err, "Failed to read response body")
-
 	var newsAPIResponse NewsAPIResponse
-	err = json.Unmarshal(body, &newsAPIResponse)
-	Util.CheckErrorAndLog(err, "Failed to unmarshal response body")
+	Util.ParseBodyFromJson(get, &newsAPIResponse)
 
 	if newsAPIResponse.Status != "ok" {
 		log.Fatalf("Failed to fetch articles from News API: %s", newsAPIResponse.Message)
@@ -57,8 +53,7 @@ func GetAllArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	}(r.Body)
 
 	var everyArticleRequest EveryArticleRequest
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&everyArticleRequest)
+	err := json.NewDecoder(r.Body).Decode(&everyArticleRequest)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
 
 	if everyArticleRequest.Page < 1 {
@@ -92,8 +87,7 @@ func SearchArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	}(r.Body)
 
 	var searchArticleRequest SearchArticleRequest
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&searchArticleRequest)
+	err := json.NewDecoder(r.Body).Decode(&searchArticleRequest)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
 
 	if searchArticleRequest.PublishedFrom.After(searchArticleRequest.PublishedTo) {
