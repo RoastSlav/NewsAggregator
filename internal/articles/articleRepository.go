@@ -6,7 +6,7 @@ import (
 )
 
 func insertArticle(article *Article, categoryId int) error {
-	_, err := database.DB.NamedExec("INSERT IGNORE INTO articles (title, content, source_id, source_name, author, description, url, url_to_image, published_at, created_at, category_id) VALUES (:title, :content, :source_id, :source_name, :author, :description, :url, :url_to_image, :published_at, :created_at, :categoryId)",
+	_, err := database.DB.NamedExec("INSERT IGNORE INTO articles (title, content, source_id, source_name, author, description, url, url_to_image, published_at, category_id) VALUES (:title, :content, :source_id, :source_name, :author, :description, :url, :url_to_image, :published_at, :categoryId)",
 		map[string]interface{}{
 			"title":        article.Title,
 			"content":      article.Content,
@@ -17,7 +17,6 @@ func insertArticle(article *Article, categoryId int) error {
 			"url":          article.URL,
 			"url_to_image": article.URLToImage,
 			"published_at": article.PublishedAt,
-			"created_at":   article.CreatedAt,
 			"categoryId":   categoryId,
 		})
 	return err

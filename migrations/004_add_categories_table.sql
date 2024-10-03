@@ -1,10 +1,10 @@
 CREATE TABLE categories
 (
-    id   SERIAL PRIMARY KEY,
+    id   INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
 ALTER TABLE articles
-    ADD COLUMN category_id BIGINT UNSIGNED,
-    ADD CONSTRAINT fk_category
+    ADD COLUMN category_id INT UNSIGNED,
+    ADD CONSTRAINT category_article_fk
         FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE NO ACTION;
