@@ -20,11 +20,6 @@ type Article struct {
 	Category    string    `json:"category" db:"category"`
 }
 
-type Category struct {
-	ID   int    `db:"id"`
-	Name string `db:"name"`
-}
-
 type SearchArticleRequest struct {
 	SourceID      string    `json:"source.id"`
 	SourceName    string    `json:"source.name"`

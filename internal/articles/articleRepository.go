@@ -127,9 +127,3 @@ func GetArticlesByCategoryName(name string, limit int, page int) ([]Article, err
 	err := database.DB.Select(&articles, "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM articles LEFT JOIN categories ON articles.category_id = categories.id WHERE categories.name = ? LIMIT ? OFFSET ?", name, limit, limit*(page-1))
 	return articles, err
 }
-
-func GetCategories() ([]Category, error) {
-	var categories []Category
-	err := database.DB.Select(&categories, "SELECT * FROM categories")
-	return categories, err
-}
