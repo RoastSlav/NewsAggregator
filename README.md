@@ -106,10 +106,6 @@
     - Track article views, most-read articles, and user interaction.
     - Provide an analytics endpoint (e.g., `GET /articles/analytics`) for aggregated statistics like total views, top
       authors, and popular topics.
-- **Article Caching**
-    - Integrate caching for articles using an in-memory store (e.g., Redis) to speed up repeated requests and reduce
-      database load.
-    - Implement cache invalidation when articles are updated or new ones are fetched.
 - **Notifications**
     - Implement real-time notifications using WebSockets or Server-Sent Events (SSE) to notify users when new articles
       of interest are available.
