@@ -44,7 +44,7 @@ type SearchArticleResponse struct {
 	Articles     []Article `json:"articles"`
 }
 
-type EveryArticleRequest struct {
+type PagedRequest struct {
 	Page  int `json:"page"`
 	Limit int `json:"limit"`
 }

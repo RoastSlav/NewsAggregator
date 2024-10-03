@@ -13,6 +13,11 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/articles", articles.GetAllArticlesHandler)
 	mux.HandleFunc("/articles/{id}", articles.GetArticleHandler)
 	mux.HandleFunc("/articles/search", articles.SearchArticlesHandler)
+	mux.HandleFunc("/articles/category/{name}", articles.GetArticlesByCategoryHandler)
+	mux.HandleFunc("/articles/category", articles.GetCategoriesHandler)
+	mux.HandleFunc("/articles/like/{id}", articles.LikeArticleHandler)
+	mux.HandleFunc("/articles/comment/{id}", articles.CommentArticleHandler)
+	mux.HandleFunc("/articles/read-later/{id}", articles.ReadLaterArticleHandler)
 
 	// Users
 	mux.HandleFunc("/user/register", users.RegisterUserHandler)
