@@ -38,8 +38,13 @@ func getCategoryByName(name string) (Category, error) {
 	return category, err
 }
 
-func insertCategory(category *Category) error {
+func insertCategory(category *CategoryRequest) error {
 	_, err := database.DB.NamedExec("INSERT INTO categories (name) VALUES (:name)", category)
+	return err
+}
+
+func deleteCategory(category *CategoryRequest) error {
+	_, err := database.DB.NamedExec("DELETE FROM categories WHERE name = :name", category)
 	return err
 }
 
@@ -128,7 +133,7 @@ func getArticlesByCategoryName(name string, limit int, page int) ([]Article, err
 	return articles, err
 }
 
-func getCategories() ([]Category, error) {
+func GetCategories() ([]Category, error) {
 	var categories []Category
 	err := database.DB.Select(&categories, "SELECT * FROM categories")
 	return categories, err

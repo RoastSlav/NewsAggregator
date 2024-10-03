@@ -44,6 +44,10 @@ type Category struct {
 	Name string `db:"name"`
 }
 
+type CategoryRequest struct {
+	Name string `json:"name"`
+}
+
 type PagedRequest struct {
 	Page  int `json:"page"`
 	Limit int `json:"limit"`

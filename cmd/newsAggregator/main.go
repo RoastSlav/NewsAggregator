@@ -10,7 +10,6 @@ import (
 	"github.com/robfig/cron/v3"
 	"log"
 	"net/http"
-	"os"
 )
 
 func main() {
@@ -19,8 +18,12 @@ func main() {
 	err := database.Connect()
 	Util.CheckErrorAndFatal(err, "Failed to connect to database")
 
-	topic := os.Getenv("NEWS_API_TOPIC")
-	articles.FetchArticlesFromNewsAPI(topic)
+	categories, err := articles.GetCategories()
+	Util.CheckErrorAndFatal(err, "Failed to get categories on startup")
+
+	for _, category := range categories {
+		articles.FetchArticlesFromNewsAPI(category.Name)
+	}
 
 	httpHandler := routes.NewRouter()
 	port := 8080

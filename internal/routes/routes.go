@@ -24,6 +24,9 @@ func NewRouter() http.Handler {
 
 	mux.HandleFunc("/articles/category/{name}", articles.GetArticlesByCategoryHandler) // GET articles by category
 	mux.HandleFunc("/articles/category", articles.GetCategoriesHandler)                // GET categories
+	mux.HandleFunc("/articles/category/add", articles.AddCategoryHandler)              // POST add category
+	mux.HandleFunc("/articles/category/remove", articles.RemoveCategoryHandler)        // POST remove category
+	mux.HandleFunc("/articles/category/update/{name}", articles.UpdateCategoryHandler) // POST update category
 
 	// Users
 	mux.HandleFunc("/user/register", users.RegisterUserHandler)

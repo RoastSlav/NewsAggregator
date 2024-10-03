@@ -13,12 +13,11 @@ import (
 	"time"
 )
 
-func FetchArticlesFromNewsAPI(topic string) {
+func FetchArticlesFromNewsAPI(category string) {
 	apiKey := os.Getenv("NEWS_API_KEY")
 	newsEverythingEndpointUrl := os.Getenv("NEWS_API_EVERYTHING_ENDPOINT_URL")
-	categoryEnv := os.Getenv("NEWS_API_TOPIC")
 
-	url := fmt.Sprintf(newsEverythingEndpointUrl+"q=%s&apiKey=%s", topic, apiKey)
+	url := fmt.Sprintf(newsEverythingEndpointUrl+"q=%s&apiKey=%s", category, apiKey)
 
 	get, err := http.Get(url)
 	Util.CheckErrorAndLog(err, "Failed to fetch articles from News API")
@@ -35,18 +34,15 @@ func FetchArticlesFromNewsAPI(topic string) {
 		log.Fatalf("Failed to fetch articles from News API: %s", newsAPIResponse.Message)
 	}
 
-	categoryDB, err := getCategoryByName(categoryEnv)
+	categoryDB, err := getCategoryByName(category)
 	if err != nil && err.Error() != "sql: no rows in result set" {
 		log.Fatalf("Failed to get category by name: %v", err)
 	}
 
 	if categoryDB.Name == "" {
-		category := Category{
-			Name: categoryEnv,
-		}
-		err = insertCategory(&category)
+		err = insertCategory(&CategoryRequest{Name: category})
 		Util.CheckErrorAndLog(err, "Failed to insert category")
-		categoryDB, err = getCategoryByName(categoryEnv)
+		categoryDB, err = getCategoryByName(category)
 	}
 
 	for _, article := range newsAPIResponse.Articles {
@@ -67,7 +63,7 @@ func FetchArticlesFromNewsAPI(topic string) {
 		Util.CheckErrorAndLog(err, "Failed to insert article")
 	}
 
-	log.Printf("Fetched %d articles from News API", newsAPIResponse.TotalResults)
+	log.Printf("Fetched %d articles from News API for %v category", newsAPIResponse.TotalResults, category)
 }
 
 func GetArticleHandler(w http.ResponseWriter, r *http.Request) {
@@ -175,7 +171,7 @@ func GetArticlesByCategoryHandler(w http.ResponseWriter, r *http.Request) {
 func GetCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
 
-	categories, err := getCategories()
+	categories, err := GetCategories()
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get categories", http.StatusInternalServerError)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -277,4 +273,42 @@ func GetCommentsForArticleHandler(writer http.ResponseWriter, request *http.Requ
 	writer.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(comments)
 	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to encode comments", http.StatusInternalServerError)
+}
+
+func AddCategoryHandler(writer http.ResponseWriter, request *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
+
+	var category CategoryRequest
+	err := json.NewDecoder(request.Body).Decode(&category)
+	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to decode request body", http.StatusBadRequest)
+
+	Util.CheckEmptyAndSendHttpResponse(category.Name, writer, "Category name is required", http.StatusBadRequest)
+
+	err = insertCategory(&category)
+	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to insert category", http.StatusInternalServerError)
+}
+
+func RemoveCategoryHandler(writer http.ResponseWriter, request *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
+
+	var category CategoryRequest
+	err := json.NewDecoder(request.Body).Decode(&category)
+	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to decode request body", http.StatusBadRequest)
+
+	Util.CheckEmptyAndSendHttpResponse(category.Name, writer, "Category name is required", http.StatusBadRequest)
+
+	err = deleteCategory(&category)
+	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to delete category", http.StatusInternalServerError)
+}
+
+func UpdateCategoryHandler(writer http.ResponseWriter, request *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
+
+	categoryName := request.PathValue("name")
+	Util.CheckEmptyAndSendHttpResponse(categoryName, writer, "Category name is required", http.StatusBadRequest)
+
+	_, err := getCategoryByName(categoryName)
+	Util.CheckErrorAndSendHttpResponse(err, writer, "No category with that name", http.StatusBadRequest)
+
+	FetchArticlesFromNewsAPI(categoryName)
 }
