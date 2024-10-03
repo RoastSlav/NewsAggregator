@@ -12,6 +12,7 @@
 - Categories for articles (e.g., Technology, Health, Sports, AI, Python, Economy).
 - Users can save articles to read later.
 - Users can comment on articles
+
 ## Requirements
 
 - Go 1.23.1 or later
@@ -103,12 +104,16 @@
 
 - **Article Analytics**
     - Track article views, most-read articles, and user interaction.
-    - Provide an analytics endpoint (e.g., `GET /articles/analytics`) for aggregated statistics like total views, top authors, and popular topics.
+    - Provide an analytics endpoint (e.g., `GET /articles/analytics`) for aggregated statistics like total views, top
+      authors, and popular topics.
 - **Article Caching**
-    - Integrate caching for articles using an in-memory store (e.g., Redis) to speed up repeated requests and reduce database load.
+    - Integrate caching for articles using an in-memory store (e.g., Redis) to speed up repeated requests and reduce
+      database load.
     - Implement cache invalidation when articles are updated or new ones are fetched.
 - **Notifications**
-    - Implement real-time notifications using WebSockets or Server-Sent Events (SSE) to notify users when new articles of interest are available.
+    - Implement real-time notifications using WebSockets or Server-Sent Events (SSE) to notify users when new articles
+      of interest are available.
     - Introduce email notifications or push notifications for subscribed users.
 - **Content Recommendations**
-    - Implement a recommendation system using collaborative or content-based filtering algorithms to suggest related articles based on user history.
+    - Implement a recommendation system using collaborative or content-based filtering algorithms to suggest related
+      articles based on user history.
