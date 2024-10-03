@@ -71,10 +71,7 @@ func FetchArticlesFromNewsAPI(topic string) {
 }
 
 func GetArticleHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
 
 	articleID := r.PathValue("id")
 
@@ -88,10 +85,7 @@ func GetArticleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllArticlesHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
 
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -122,10 +116,7 @@ func GetAllArticlesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchArticlesHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
 
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -160,10 +151,7 @@ func SearchArticlesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetArticlesByCategoryHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
 
 	categoryName := r.PathValue("name")
 
@@ -185,10 +173,7 @@ func GetArticlesByCategoryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCategoriesHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
 
 	categories, err := GetCategories()
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get categories", http.StatusInternalServerError)
@@ -199,19 +184,13 @@ func GetCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LikeArticleHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
 
 	articleID := r.PathValue("id")
 	id, _ := strconv.ParseInt(articleID, 0, 64)
 
 	sessionToken := r.Header.Get("Authorization")
-	if sessionToken == "" {
-		http.Error(w, "Authorization header is required", http.StatusUnauthorized)
-		return
-	}
+	Util.CheckEmptyAndSendHttpResponse(sessionToken, w, "Authorization header is required", http.StatusUnauthorized)
 
 	userId := users.GetUserIdFromSessionToken(sessionToken)
 	liked, err := CheckIfUserLikedArticle(int(id), userId)
@@ -227,7 +206,23 @@ func LikeArticleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CommentArticleHandler(w http.ResponseWriter, r *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
 
+	articleID := r.PathValue("id")
+	id, _ := strconv.ParseInt(articleID, 0, 64)
+
+	sessionToken := r.Header.Get("Authorization")
+	Util.CheckEmptyAndSendHttpResponse(sessionToken, w, "Authorization header is required", http.StatusUnauthorized)
+
+	userId := users.GetUserIdFromSessionToken(sessionToken)
+
+	var comment Comment
+	err := json.NewDecoder(r.Body).Decode(&comment)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
+	Util.CheckEmptyAndSendHttpResponse(comment.Content, w, "Comment content is required", http.StatusBadRequest)
+
+	err = AddCommentToArticle(int(id), userId, comment.Content)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to insert comment", http.StatusInternalServerError)
 }
 
 func ReadLaterArticleHandler(writer http.ResponseWriter, request *http.Request) {

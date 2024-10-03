@@ -76,3 +76,7 @@ func (f FetchJob) Run() {
 	topic := os.Getenv("NEWS_API_TOPIC")
 	FetchArticlesFromNewsAPI(topic)
 }
+
+type Comment struct {
+	Content string `db:"content"`
+}

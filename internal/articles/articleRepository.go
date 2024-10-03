@@ -149,3 +149,8 @@ func CheckIfUserLikedArticle(articleId int, userId int) (bool, error) {
 	err := database.DB.Get(&count, "SELECT COUNT(*) FROM likes WHERE article_id = ? AND user_id = ?", articleId, userId)
 	return count > 0, err
 }
+
+func AddCommentToArticle(articleId int, userId int, comment string) error {
+	_, err := database.DB.Exec("INSERT INTO comments (article_id, user_id, content) VALUES (?, ?, ?)", articleId, userId, comment)
+	return err
+}
