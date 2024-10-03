@@ -10,6 +10,7 @@ NewsAggregator is a Go-based application that fetches articles from various news
 - User profiles with registration and login.
 - Pagination for articles.
 - Search for articles.
+- Automatic cron updates for fetching articles.
 
 ## Requirements
 
@@ -78,9 +79,6 @@ NewsAggregator is a Go-based application that fetches articles from various news
 - **Categories and Tags**
     - Enhance articles with categories (e.g., Technology, Health, Sports) and tags (e.g., AI, Python, Economy).
     - Implement endpoints for filtering articles by category or tags (e.g., `GET /articles?category=technology`).
-- **Scheduled Fetching**
-    - Use a task scheduler (e.g., cron jobs or Go's `time` package) to periodically fetch articles from external APIs.
-    - Introduce an admin endpoint to manually trigger article fetching.
 - **Article Analytics**
     - Track article views, most-read articles, and user interaction.
     - Provide an analytics endpoint (e.g., `GET /articles/analytics`) for aggregated statistics like total views, top authors, and popular topics.
