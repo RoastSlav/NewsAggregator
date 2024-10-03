@@ -216,10 +216,10 @@ func CommentArticleHandler(w http.ResponseWriter, r *http.Request) {
 
 	userId := users.GetUserIdFromSessionToken(sessionToken)
 
-	var comment Comment
+	var comment CommentRequest
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
-	Util.CheckEmptyAndSendHttpResponse(comment.Content, w, "Comment content is required", http.StatusBadRequest)
+	Util.CheckEmptyAndSendHttpResponse(comment.Content, w, "CommentRequest content is required", http.StatusBadRequest)
 
 	err = addCommentToArticle(int(id), userId, comment.Content)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to insert comment", http.StatusInternalServerError)
@@ -263,4 +263,18 @@ func GetReadLaterArticlesHandler(writer http.ResponseWriter, request *http.Reque
 	writer.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(writer).Encode(articles)
 	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to encode articles", http.StatusInternalServerError)
+}
+
+func GetCommentsForArticleHandler(writer http.ResponseWriter, request *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
+
+	articleID := request.PathValue("id")
+	id, _ := strconv.ParseInt(articleID, 0, 64)
+
+	comments, err := getCommentsForArticle(int(id))
+	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to get comments for article", http.StatusInternalServerError)
+
+	writer.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(writer).Encode(comments)
+	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to encode comments", http.StatusInternalServerError)
 }

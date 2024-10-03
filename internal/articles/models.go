@@ -77,6 +77,14 @@ func (f FetchJob) Run() {
 	FetchArticlesFromNewsAPI(topic)
 }
 
-type Comment struct {
+type CommentRequest struct {
 	Content string `db:"content"`
+}
+
+type Comment struct {
+	ID        int       `db:"id"`
+	ArticleID int       `db:"article_id"`
+	UserId    int       `db:"user_id"`
+	Content   string    `db:"content"`
+	CreatedAt time.Time `db:"created_at"`
 }

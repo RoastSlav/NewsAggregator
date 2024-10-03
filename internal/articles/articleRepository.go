@@ -176,3 +176,9 @@ func getReadLaterArticles(userId int) ([]Article, error) {
 	err := database.DB.Select(&articles, "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM read_later LEFT JOIN articles ON read_later.article_id = articles.id LEFT JOIN categories ON articles.category_id = categories.id WHERE read_later.user_id = ?", userId)
 	return articles, err
 }
+
+func getCommentsForArticle(articleId int) ([]Comment, error) {
+	var comments []Comment
+	err := database.DB.Select(&comments, "SELECT comments.id, comments.article_id, comments.user_id, comments.content, comments.created_at FROM comments WHERE comments.article_id = ?", articleId)
+	return comments, err
+}

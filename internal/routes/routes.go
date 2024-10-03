@@ -16,7 +16,8 @@ func NewRouter() http.Handler {
 
 	mux.HandleFunc("/articles/like/{id}", articles.LikeArticleHandler) // POST like/dislike article
 
-	mux.HandleFunc("/articles/comment/{id}", articles.CommentArticleHandler) // POST comment article
+	mux.HandleFunc("/articles/comment/{id}", articles.CommentArticleHandler)         // POST comment article
+	mux.HandleFunc("/articles/comments/{id}", articles.GetCommentsForArticleHandler) // GET comments
 
 	mux.HandleFunc("/articles/read-later/{id}", articles.ReadLaterArticleHandler) // POST read later/remove from read later article
 	mux.HandleFunc("/articles/read-later", articles.GetReadLaterArticlesHandler)  // GET read later articles
