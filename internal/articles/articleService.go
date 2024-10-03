@@ -15,6 +15,7 @@ import (
 func FetchArticlesFromNewsAPI(topic string) {
 	apiKey := os.Getenv("NEWS_API_KEY")
 	newsEverythingEndpointUrl := os.Getenv("NEWS_API_EVERYTHING_ENDPOINT_URL")
+	categoryEnv := os.Getenv("NEWS_API_TOPIC")
 
 	url := fmt.Sprintf(newsEverythingEndpointUrl+"q=%s&apiKey=%s", topic, apiKey)
 
@@ -33,6 +34,20 @@ func FetchArticlesFromNewsAPI(topic string) {
 		log.Fatalf("Failed to fetch articles from News API: %s", newsAPIResponse.Message)
 	}
 
+	categoryDB, err := GetCategoryByName(categoryEnv)
+	if err != nil && err.Error() != "sql: no rows in result set" {
+		log.Fatalf("Failed to get category by name: %v", err)
+	}
+
+	if categoryDB.Name == "" {
+		category := Category{
+			Name: categoryEnv,
+		}
+		err = InsertCategory(&category)
+		Util.CheckErrorAndLog(err, "Failed to insert category")
+		categoryDB, err = GetCategoryByName(categoryEnv)
+	}
+
 	for _, article := range newsAPIResponse.Articles {
 		articleDB, err := GetArticlesByTitleAndAuthor(article.Title, article.Author)
 		Util.CheckErrorAndLog(err, "Failed to get article by title and author")
@@ -47,7 +62,7 @@ func FetchArticlesFromNewsAPI(topic string) {
 		}
 
 		article.CreatedAt = time.Now()
-		err = insertArticle(&article)
+		err = insertArticle(&article, categoryDB.ID)
 		Util.CheckErrorAndLog(err, "Failed to insert article")
 	}
 

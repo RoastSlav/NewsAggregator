@@ -5,8 +5,21 @@ import (
 	"strconv"
 )
 
-func insertArticle(article *Article) error {
-	_, err := database.DB.NamedExec("INSERT IGNORE INTO articles (title, content, source_id, source_name, author, description, url, url_to_image, published_at, created_at) VALUES (:title, :content, :source_id, :source_name, :author, :description, :url, :url_to_image, :published_at, :created_at)", article)
+func insertArticle(article *Article, categoryId int) error {
+	_, err := database.DB.NamedExec("INSERT IGNORE INTO articles (title, content, source_id, source_name, author, description, url, url_to_image, published_at, created_at, category_id) VALUES (:title, :content, :source_id, :source_name, :author, :description, :url, :url_to_image, :published_at, :created_at, :categoryId)",
+		map[string]interface{}{
+			"title":        article.Title,
+			"content":      article.Content,
+			"source_id":    article.SourceID,
+			"source_name":  article.SourceName,
+			"author":       article.Author,
+			"description":  article.Description,
+			"url":          article.URL,
+			"url_to_image": article.URLToImage,
+			"published_at": article.PublishedAt,
+			"created_at":   article.CreatedAt,
+			"categoryId":   categoryId,
+		})
 	return err
 }
 
@@ -16,18 +29,29 @@ func GetAllArticles(page int, limit int) ([]Article, error) {
 	if limit == 0 {
 		limit = 10
 	}
-	err := database.DB.Select(&articles, "SELECT * FROM articles LIMIT ? OFFSET ?", limit, limit*(page-1))
+	err := database.DB.Select(&articles, "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM articles LEFT JOIN categories ON articles.category_id = categories.id LIMIT ? OFFSET ?", limit, limit*(page-1))
 	return articles, err
+}
+
+func GetCategoryByName(name string) (Category, error) {
+	var category Category
+	err := database.DB.Get(&category, "SELECT * FROM categories WHERE name = ?", name)
+	return category, err
+}
+
+func InsertCategory(category *Category) error {
+	_, err := database.DB.NamedExec("INSERT INTO categories (name) VALUES (:name)", category)
+	return err
 }
 
 func GetArticlesByTitleAndAuthor(title string, author string) ([]Article, error) {
 	var article []Article
-	err := database.DB.Select(&article, "SELECT * FROM articles WHERE title = ? AND author = ?", title, author)
+	err := database.DB.Select(&article, "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM articles LEFT JOIN categories ON articles.category_id = categories.id WHERE title = ? AND author = ?", title, author)
 	return article, err
 }
 
 func SearchArticles(article SearchArticleRequest) ([]Article, error) {
-	querry := "SELECT * FROM articles WHERE "
+	querry := "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM articles LEFT JOIN categories ON articles.category_id = categories.id WHERE "
 
 	requiresAnd := false
 
@@ -95,6 +119,6 @@ func SearchArticles(article SearchArticleRequest) ([]Article, error) {
 
 func GetArticleById(id int) (Article, error) {
 	var article Article
-	err := database.DB.Get(&article, "SELECT * FROM articles WHERE id = ?", id)
+	err := database.DB.Get(&article, "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM articles LEFT JOIN categories ON articles.category_id = categories.id WHERE articles.id = ?", id)
 	return article, err
 }

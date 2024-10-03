@@ -17,6 +17,12 @@ type Article struct {
 	PublishedAt time.Time `json:"publishedAt" db:"published_at"`
 	Content     string    `json:"content" db:"content"`
 	CreatedAt   time.Time `db:"created_at"`
+	Category    string    `json:"category" db:"category"`
+}
+
+type Category struct {
+	ID   int    `db:"id"`
+	Name string `db:"name"`
 }
 
 type SearchArticleRequest struct {
