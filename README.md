@@ -13,7 +13,8 @@ API.
 - Search for articles.
 - Automatic cron updates for fetching articles.
 - Categories for articles (e.g., Technology, Health, Sports, AI, Python, Economy).
-
+- Users can save articles to read later.
+- Users can comment on articles
 ## Requirements
 
 - Go 1.23.1 or later
@@ -55,9 +56,16 @@ API.
 
 - `GET /articles`: Retrieve all articles.
 - `GET /articles/{id}`: Retrieve a specific article by ID.
+- `GET /articles/search`: Search and filter articles.
+- `POST /articles/like/{id}`: Like or dislike an article.
+- `POST /articles/comment/{id}`: Comment on an article.
+- `GET /articles/comments/{id}`: Retrieve comments for an article.
+- `POST /articles/read-later/{id}`: Add or remove an article from read later.
+- `GET /articles/read-later`: Retrieve read later articles.
+- `GET /articles/category/{name}`: Retrieve articles by category.
+- `GET /articles/category`: Retrieve all categories.
 - `POST /user/register`: Register a new user.
 - `POST /user/login`: Log in an existing user.
-- `GET /articles/search`: Search and filter articles.
 
 ## Project Structure
 
@@ -95,34 +103,18 @@ API.
 
 - **Article Analytics**
     - Track article views, most-read articles, and user interaction.
-    - Provide an analytics endpoint (e.g., `GET /articles/analytics`) for aggregated statistics like total views, top
-      authors, and popular topics.
-- **Bookmarking and Read-Later**
-    - Introduce a bookmarking system for users to save articles to read later.
-    - Provide endpoints like `POST /articles/{id}/bookmark` and `GET /users/{id}/bookmarks` to manage bookmarks.
-- **Authentication and Authorization**
-    - Implement user registration and login using JSON Web Tokens (JWT).
-    - Restrict certain endpoints (e.g., saving articles, commenting) to authenticated users.
-    - Introduce user roles (e.g., admin, editor) with varying access levels to manage content.
-- **Comments and Discussions**
-    - Develop a commenting system for users to comment on articles.
-    - Enable liking or disliking comments and include a moderation system to filter inappropriate content.
+    - Provide an analytics endpoint (e.g., `GET /articles/analytics`) for aggregated statistics like total views, top authors, and popular topics.
 - **Rate Limiting and Throttling**
-    - Introduce rate limiting to prevent abuse of the API by controlling the number of requests a user can make within a
-      given time frame.
+    - Introduce rate limiting to prevent abuse of the API by controlling the number of requests a user can make within a given time frame.
     - Use middleware to enforce rate limits and return appropriate responses.
 - **Article Caching**
-    - Integrate caching for articles using an in-memory store (e.g., Redis) to speed up repeated requests and reduce
-      database load.
+    - Integrate caching for articles using an in-memory store (e.g., Redis) to speed up repeated requests and reduce database load.
     - Implement cache invalidation when articles are updated or new ones are fetched.
 - **Notifications**
-    - Implement real-time notifications using WebSockets or Server-Sent Events (SSE) to notify users when new articles
-      of interest are available.
+    - Implement real-time notifications using WebSockets or Server-Sent Events (SSE) to notify users when new articles of interest are available.
     - Introduce email notifications or push notifications for subscribed users.
 - **Content Recommendations**
-    - Implement a recommendation system using collaborative or content-based filtering algorithms to suggest related
-      articles based on user history.
+    - Implement a recommendation system using collaborative or content-based filtering algorithms to suggest related articles based on user history.
 - **Article Summarization**
-    - Use Natural Language Processing (NLP) libraries (e.g., spaCy, Golang text analysis packages) to generate article
-      summaries.
+    - Use Natural Language Processing (NLP) libraries (e.g., spaCy, Golang text analysis packages) to generate article summaries.
     - Add an endpoint (`GET /articles/{id}/summary`) to provide the summarized version of an article.
