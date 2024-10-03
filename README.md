@@ -64,6 +64,9 @@ API. I'm using this project to learn Go and improve my skills in building web ap
 - `GET /articles/read-later`: Retrieve read later articles.
 - `GET /articles/category/{name}`: Retrieve articles by category.
 - `GET /articles/category`: Retrieve all categories.
+- `POST /articles/category/add`: Add a new category.
+- `POST /articles/category/remove`: Remove a category.
+- `POST /articles/category/update/{name}`: Update a category.
 - `POST /user/register`: Register a new user.
 - `POST /user/login`: Log in an existing user.
 
