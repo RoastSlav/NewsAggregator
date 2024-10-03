@@ -20,6 +20,12 @@ func GetAllArticles(page int, limit int) ([]Article, error) {
 	return articles, err
 }
 
+func GetArticlesByTitleAndAuthor(title string, author string) ([]Article, error) {
+	var article []Article
+	err := database.DB.Select(&article, "SELECT * FROM articles WHERE title = ? AND author = ?", title, author)
+	return article, err
+}
+
 func SearchArticles(article SearchArticleRequest) ([]Article, error) {
 	querry := "SELECT * FROM articles WHERE "
 

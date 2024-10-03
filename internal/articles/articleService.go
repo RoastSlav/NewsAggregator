@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -33,12 +34,41 @@ func FetchArticlesFromNewsAPI(topic string) {
 	}
 
 	for _, article := range newsAPIResponse.Articles {
+		articleDB, err := GetArticlesByTitleAndAuthor(article.Title, article.Author)
+		Util.CheckErrorAndLog(err, "Failed to get article by title and author")
+
+		if len(articleDB) > 0 {
+			continue
+		}
+
+		// Remove articles with title "[Removed]" as they are not useful. The API sometimes returns articles with this title.
+		if article.Title == "[Removed]" {
+			continue
+		}
+
 		article.CreatedAt = time.Now()
 		err = insertArticle(&article)
 		Util.CheckErrorAndLog(err, "Failed to insert article")
 	}
 
 	log.Printf("Fetched %d articles from News API", newsAPIResponse.TotalResults)
+}
+
+func GetArticleHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	articleID := r.PathValue("id")
+
+	id, _ := strconv.ParseInt(articleID, 0, 64)
+	article, err := GetArticleById(int(id))
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get article", http.StatusInternalServerError)
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(article)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to encode article", http.StatusInternalServerError)
 }
 
 func GetAllArticlesHandler(w http.ResponseWriter, r *http.Request) {
