@@ -1,8 +1,5 @@
 # NewsAggregator
 
-NewsAggregator is a Go-based application that fetches articles from various news sources and serves them via a RESTful
-API. I'm using this project to learn Go and improve my skills in building web applications.
-
 ## Features
 
 - Fetch articles from external news APIs.
