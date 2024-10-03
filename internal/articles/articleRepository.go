@@ -133,3 +133,19 @@ func GetCategories() ([]Category, error) {
 	err := database.DB.Select(&categories, "SELECT * FROM categories")
 	return categories, err
 }
+
+func AddLikeToArticle(articleId int, userId int) error {
+	_, err := database.DB.Exec("INSERT INTO likes (article_id, user_id) VALUES (?, ?)", articleId, userId)
+	return err
+}
+
+func DeleteLikeFromArticle(articleId int, userId int) error {
+	_, err := database.DB.Exec("DELETE FROM likes WHERE article_id = ? AND user_id = ?", articleId, userId)
+	return err
+}
+
+func CheckIfUserLikedArticle(articleId int, userId int) (bool, error) {
+	var count int
+	err := database.DB.Get(&count, "SELECT COUNT(*) FROM likes WHERE article_id = ? AND user_id = ?", articleId, userId)
+	return count > 0, err
+}

@@ -14,3 +14,9 @@ func GetUserByEmail(email string) (User, error) {
 	err := database.DB.Get(&user, "SELECT * FROM users WHERE email = ?", email)
 	return user, err
 }
+
+func getUserIdBySessionToken(sessionToken string) (int, error) {
+	var userId int
+	err := database.DB.Get(&userId, "SELECT sessions.user_id FROM sessions WHERE session_token = ?", sessionToken)
+	return userId, err
+}

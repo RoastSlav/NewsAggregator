@@ -81,3 +81,10 @@ func generateSessionToken() string {
 
 	return base64.StdEncoding.EncodeToString(bytes)
 }
+
+func GetUserIdFromSessionToken(sessionToken string) int {
+	id, err := getUserIdBySessionToken(sessionToken)
+	Util.CheckErrorAndLog(err, "Failed to get user id from session token")
+
+	return id
+}

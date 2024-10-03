@@ -1,6 +1,7 @@
 package articles
 
 import (
+	"NewsAggregator/internal/users"
 	"NewsAggregator/internal/util"
 	"encoding/json"
 	"fmt"
@@ -198,7 +199,31 @@ func GetCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LikeArticleHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
 
+	articleID := r.PathValue("id")
+	id, _ := strconv.ParseInt(articleID, 0, 64)
+
+	sessionToken := r.Header.Get("Authorization")
+	if sessionToken == "" {
+		http.Error(w, "Authorization header is required", http.StatusUnauthorized)
+		return
+	}
+
+	userId := users.GetUserIdFromSessionToken(sessionToken)
+	liked, err := CheckIfUserLikedArticle(int(id), userId)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to check if user liked article", http.StatusInternalServerError)
+
+	if liked {
+		err := DeleteLikeFromArticle(int(id), userId)
+		Util.CheckErrorAndSendHttpResponse(err, w, "Failed to remove like from article", http.StatusInternalServerError)
+		return
+	}
+	err = AddLikeToArticle(int(id), userId)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to add like to article", http.StatusInternalServerError)
 }
 
 func CommentArticleHandler(w http.ResponseWriter, r *http.Request) {
