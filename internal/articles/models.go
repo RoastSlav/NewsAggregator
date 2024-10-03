@@ -1,6 +1,9 @@
 package articles
 
-import "time"
+import (
+	"os"
+	"time"
+)
 
 type Article struct {
 	ID          int       `db:"id"`
@@ -58,4 +61,12 @@ type NewsAPIResponse struct {
 type Source struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+}
+
+type FetchJob struct {
+}
+
+func (f FetchJob) Run() {
+	topic := os.Getenv("NEWS_API_TOPIC")
+	FetchArticlesFromNewsAPI(topic)
 }

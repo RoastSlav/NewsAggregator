@@ -21,3 +21,9 @@ func CheckErrorAndLog(err error, message string) bool {
 	}
 	return false
 }
+
+func CheckErrorAndFatal(err error, message string) {
+	if err != nil {
+		log.Fatalf("%s: %v\n", message, err)
+	}
+}
