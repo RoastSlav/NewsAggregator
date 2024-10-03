@@ -2,7 +2,6 @@ package routes
 
 import (
 	"NewsAggregator/internal/articles"
-	"NewsAggregator/internal/categories"
 	"NewsAggregator/internal/users"
 	"net/http"
 )
@@ -17,10 +16,8 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/articles/like/{id}", articles.LikeArticleHandler)
 	mux.HandleFunc("/articles/comment/{id}", articles.CommentArticleHandler)
 	mux.HandleFunc("/articles/read-later/{id}", articles.ReadLaterArticleHandler)
-
-	// Categories
-	mux.HandleFunc("/category/{name}", categories.GetArticlesByCategoryHandler)
-	mux.HandleFunc("/category", categories.GetCategoriesHandler)
+	mux.HandleFunc("/articles/category/{name}", articles.GetArticlesByCategoryHandler)
+	mux.HandleFunc("/articles/category", articles.GetCategoriesHandler)
 
 	// Users
 	mux.HandleFunc("/user/register", users.RegisterUserHandler)
