@@ -106,10 +106,10 @@
     - Track article views, most-read articles, and user interaction.
     - Provide an analytics endpoint (e.g., `GET /articles/analytics`) for aggregated statistics like total views, top
       authors, and popular topics.
+- **Content Recommendations**
+    - Implement a recommendation system using collaborative or content-based filtering algorithms to suggest related
+      articles based on user history.
 - **Notifications**
     - Implement real-time notifications using WebSockets or Server-Sent Events (SSE) to notify users when new articles
       of interest are available.
     - Introduce email notifications or push notifications for subscribed users.
-- **Content Recommendations**
-    - Implement a recommendation system using collaborative or content-based filtering algorithms to suggest related
-      articles based on user history.
