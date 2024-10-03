@@ -107,9 +107,6 @@ API. I'm using this project to learn Go and improve my skills in building web ap
 - **Article Analytics**
     - Track article views, most-read articles, and user interaction.
     - Provide an analytics endpoint (e.g., `GET /articles/analytics`) for aggregated statistics like total views, top authors, and popular topics.
-- **Rate Limiting and Throttling**
-    - Introduce rate limiting to prevent abuse of the API by controlling the number of requests a user can make within a given time frame.
-    - Use middleware to enforce rate limits and return appropriate responses.
 - **Article Caching**
     - Integrate caching for articles using an in-memory store (e.g., Redis) to speed up repeated requests and reduce database load.
     - Implement cache invalidation when articles are updated or new ones are fetched.
@@ -118,6 +115,3 @@ API. I'm using this project to learn Go and improve my skills in building web ap
     - Introduce email notifications or push notifications for subscribed users.
 - **Content Recommendations**
     - Implement a recommendation system using collaborative or content-based filtering algorithms to suggest related articles based on user history.
-- **Article Summarization**
-    - Use Natural Language Processing (NLP) libraries (e.g., spaCy, Golang text analysis packages) to generate article summaries.
-    - Add an endpoint (`GET /articles/{id}/summary`) to provide the summarized version of an article.
