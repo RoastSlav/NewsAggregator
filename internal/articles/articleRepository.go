@@ -154,3 +154,19 @@ func AddCommentToArticle(articleId int, userId int, comment string) error {
 	_, err := database.DB.Exec("INSERT INTO comments (article_id, user_id, content) VALUES (?, ?, ?)", articleId, userId, comment)
 	return err
 }
+
+func IsArticleInReadLater(userId int, articleId int) (bool, error) {
+	var count int
+	err := database.DB.Get(&count, "SELECT COUNT(*) FROM read_later WHERE user_id = ? AND article_id = ?", userId, articleId)
+	return count > 0, err
+}
+
+func AddArticleToReadLater(userId int, articleId int) error {
+	_, err := database.DB.Exec("INSERT INTO read_later (user_id, article_id) VALUES (?, ?)", userId, articleId)
+	return err
+}
+
+func RemoveArticleFromReadLater(userId int, articleId int) error {
+	_, err := database.DB.Exec("DELETE FROM read_later WHERE user_id = ? AND article_id = ?", userId, articleId)
+	return err
+}

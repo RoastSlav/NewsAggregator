@@ -226,5 +226,25 @@ func CommentArticleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ReadLaterArticleHandler(writer http.ResponseWriter, request *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
 
+	articleID := request.PathValue("id")
+	id, _ := strconv.ParseInt(articleID, 0, 64)
+
+	sessionToken := request.Header.Get("Authorization")
+	Util.CheckEmptyAndSendHttpResponse(sessionToken, writer, "Authorization header is required", http.StatusUnauthorized)
+
+	userID := users.GetUserIdFromSessionToken(sessionToken)
+
+	inReadLater, err := IsArticleInReadLater(userID, int(id))
+	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to check if article is in read later", http.StatusInternalServerError)
+
+	if inReadLater {
+		err := RemoveArticleFromReadLater(userID, int(id))
+		Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to remove article from read later", http.StatusInternalServerError)
+		return
+	}
+
+	err = AddArticleToReadLater(userID, int(id))
+	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to add article to read later", http.StatusInternalServerError)
 }
