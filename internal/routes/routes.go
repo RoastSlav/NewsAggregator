@@ -10,14 +10,19 @@ func NewRouter() http.Handler {
 	mux := http.NewServeMux()
 
 	// Articles
-	mux.HandleFunc("/articles", articles.GetAllArticlesHandler)
-	mux.HandleFunc("/articles/{id}", articles.GetArticleHandler)
-	mux.HandleFunc("/articles/search", articles.SearchArticlesHandler)
-	mux.HandleFunc("/articles/like/{id}", articles.LikeArticleHandler)
-	mux.HandleFunc("/articles/comment/{id}", articles.CommentArticleHandler)
-	mux.HandleFunc("/articles/read-later/{id}", articles.ReadLaterArticleHandler)
-	mux.HandleFunc("/articles/category/{name}", articles.GetArticlesByCategoryHandler)
-	mux.HandleFunc("/articles/category", articles.GetCategoriesHandler)
+	mux.HandleFunc("/articles", articles.GetAllArticlesHandler)        // GET all articles
+	mux.HandleFunc("/articles/{id}", articles.GetArticleHandler)       // GET article by id
+	mux.HandleFunc("/articles/search", articles.SearchArticlesHandler) // GET articles by search
+
+	mux.HandleFunc("/articles/like/{id}", articles.LikeArticleHandler) // POST like/dislike article
+
+	mux.HandleFunc("/articles/comment/{id}", articles.CommentArticleHandler) // POST comment article
+
+	mux.HandleFunc("/articles/read-later/{id}", articles.ReadLaterArticleHandler) // POST read later/remove from read later article
+	mux.HandleFunc("/articles/read-later", articles.GetReadLaterArticlesHandler)  // GET read later articles
+
+	mux.HandleFunc("/articles/category/{name}", articles.GetArticlesByCategoryHandler) // GET articles by category
+	mux.HandleFunc("/articles/category", articles.GetCategoriesHandler)                // GET categories
 
 	// Users
 	mux.HandleFunc("/user/register", users.RegisterUserHandler)

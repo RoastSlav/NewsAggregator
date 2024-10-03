@@ -22,7 +22,7 @@ func insertArticle(article *Article, categoryId int) error {
 	return err
 }
 
-func GetAllArticles(page int, limit int) ([]Article, error) {
+func getAllArticles(page int, limit int) ([]Article, error) {
 	var articles []Article
 
 	if limit == 0 {
@@ -32,24 +32,24 @@ func GetAllArticles(page int, limit int) ([]Article, error) {
 	return articles, err
 }
 
-func GetCategoryByName(name string) (Category, error) {
+func getCategoryByName(name string) (Category, error) {
 	var category Category
 	err := database.DB.Get(&category, "SELECT * FROM categories WHERE name = ?", name)
 	return category, err
 }
 
-func InsertCategory(category *Category) error {
+func insertCategory(category *Category) error {
 	_, err := database.DB.NamedExec("INSERT INTO categories (name) VALUES (:name)", category)
 	return err
 }
 
-func GetArticlesByTitleAndAuthor(title string, author string) ([]Article, error) {
+func getArticlesByTitleAndAuthor(title string, author string) ([]Article, error) {
 	var article []Article
 	err := database.DB.Select(&article, "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM articles LEFT JOIN categories ON articles.category_id = categories.id WHERE title = ? AND author = ?", title, author)
 	return article, err
 }
 
-func SearchArticles(article SearchArticleRequest) ([]Article, error) {
+func searchArticles(article SearchArticleRequest) ([]Article, error) {
 	querry := "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM articles LEFT JOIN categories ON articles.category_id = categories.id WHERE "
 
 	requiresAnd := false
@@ -116,57 +116,63 @@ func SearchArticles(article SearchArticleRequest) ([]Article, error) {
 	return articles, err
 }
 
-func GetArticleById(id int) (Article, error) {
+func getArticleById(id int) (Article, error) {
 	var article Article
 	err := database.DB.Get(&article, "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM articles LEFT JOIN categories ON articles.category_id = categories.id WHERE articles.id = ?", id)
 	return article, err
 }
 
-func GetArticlesByCategoryName(name string, limit int, page int) ([]Article, error) {
+func getArticlesByCategoryName(name string, limit int, page int) ([]Article, error) {
 	var articles []Article
 	err := database.DB.Select(&articles, "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM articles LEFT JOIN categories ON articles.category_id = categories.id WHERE categories.name = ? LIMIT ? OFFSET ?", name, limit, limit*(page-1))
 	return articles, err
 }
 
-func GetCategories() ([]Category, error) {
+func getCategories() ([]Category, error) {
 	var categories []Category
 	err := database.DB.Select(&categories, "SELECT * FROM categories")
 	return categories, err
 }
 
-func AddLikeToArticle(articleId int, userId int) error {
+func addLikeToArticle(articleId int, userId int) error {
 	_, err := database.DB.Exec("INSERT INTO likes (article_id, user_id) VALUES (?, ?)", articleId, userId)
 	return err
 }
 
-func DeleteLikeFromArticle(articleId int, userId int) error {
+func deleteLikeFromArticle(articleId int, userId int) error {
 	_, err := database.DB.Exec("DELETE FROM likes WHERE article_id = ? AND user_id = ?", articleId, userId)
 	return err
 }
 
-func CheckIfUserLikedArticle(articleId int, userId int) (bool, error) {
+func checkIfUserLikedArticle(articleId int, userId int) (bool, error) {
 	var count int
 	err := database.DB.Get(&count, "SELECT COUNT(*) FROM likes WHERE article_id = ? AND user_id = ?", articleId, userId)
 	return count > 0, err
 }
 
-func AddCommentToArticle(articleId int, userId int, comment string) error {
+func addCommentToArticle(articleId int, userId int, comment string) error {
 	_, err := database.DB.Exec("INSERT INTO comments (article_id, user_id, content) VALUES (?, ?, ?)", articleId, userId, comment)
 	return err
 }
 
-func IsArticleInReadLater(userId int, articleId int) (bool, error) {
+func isArticleInReadLater(userId int, articleId int) (bool, error) {
 	var count int
 	err := database.DB.Get(&count, "SELECT COUNT(*) FROM read_later WHERE user_id = ? AND article_id = ?", userId, articleId)
 	return count > 0, err
 }
 
-func AddArticleToReadLater(userId int, articleId int) error {
+func addArticleToReadLater(userId int, articleId int) error {
 	_, err := database.DB.Exec("INSERT INTO read_later (user_id, article_id) VALUES (?, ?)", userId, articleId)
 	return err
 }
 
-func RemoveArticleFromReadLater(userId int, articleId int) error {
+func removeArticleFromReadLater(userId int, articleId int) error {
 	_, err := database.DB.Exec("DELETE FROM read_later WHERE user_id = ? AND article_id = ?", userId, articleId)
 	return err
+}
+
+func getReadLaterArticles(userId int) ([]Article, error) {
+	var articles []Article
+	err := database.DB.Select(&articles, "SELECT articles.id, articles.author, articles.created_at, articles.content, articles.description, articles.source_id ,articles.source_name, articles.title, articles.published_at, articles.url, articles.url_to_image, categories.name AS category FROM read_later LEFT JOIN articles ON read_later.article_id = articles.id LEFT JOIN categories ON articles.category_id = categories.id WHERE read_later.user_id = ?", userId)
+	return articles, err
 }

@@ -35,7 +35,7 @@ func FetchArticlesFromNewsAPI(topic string) {
 		log.Fatalf("Failed to fetch articles from News API: %s", newsAPIResponse.Message)
 	}
 
-	categoryDB, err := GetCategoryByName(categoryEnv)
+	categoryDB, err := getCategoryByName(categoryEnv)
 	if err != nil && err.Error() != "sql: no rows in result set" {
 		log.Fatalf("Failed to get category by name: %v", err)
 	}
@@ -44,13 +44,13 @@ func FetchArticlesFromNewsAPI(topic string) {
 		category := Category{
 			Name: categoryEnv,
 		}
-		err = InsertCategory(&category)
+		err = insertCategory(&category)
 		Util.CheckErrorAndLog(err, "Failed to insert category")
-		categoryDB, err = GetCategoryByName(categoryEnv)
+		categoryDB, err = getCategoryByName(categoryEnv)
 	}
 
 	for _, article := range newsAPIResponse.Articles {
-		articleDB, err := GetArticlesByTitleAndAuthor(article.Title, article.Author)
+		articleDB, err := getArticlesByTitleAndAuthor(article.Title, article.Author)
 		Util.CheckErrorAndLog(err, "Failed to get article by title and author")
 
 		if len(articleDB) > 0 {
@@ -76,7 +76,7 @@ func GetArticleHandler(w http.ResponseWriter, r *http.Request) {
 	articleID := r.PathValue("id")
 
 	id, _ := strconv.ParseInt(articleID, 0, 64)
-	article, err := GetArticleById(int(id))
+	article, err := getArticleById(int(id))
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get article", http.StatusInternalServerError)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -100,7 +100,7 @@ func GetAllArticlesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page must be greater than 0", http.StatusBadRequest)
 	}
 
-	articles, err := GetAllArticles(everyArticleRequest.Page, everyArticleRequest.Limit)
+	articles, err := getAllArticles(everyArticleRequest.Page, everyArticleRequest.Limit)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get all articles", http.StatusInternalServerError)
 
 	response := EveryArticleResponse{
@@ -135,7 +135,7 @@ func SearchArticlesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page must be greater than 0", http.StatusBadRequest)
 	}
 
-	articles, err := SearchArticles(searchArticleRequest)
+	articles, err := searchArticles(searchArticleRequest)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to search articles", http.StatusInternalServerError)
 
 	response := SearchArticleResponse{
@@ -164,7 +164,7 @@ func GetArticlesByCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&categoryArticlesRequest)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
 
-	articles, err := GetArticlesByCategoryName(categoryName, categoryArticlesRequest.Limit, categoryArticlesRequest.Page)
+	articles, err := getArticlesByCategoryName(categoryName, categoryArticlesRequest.Limit, categoryArticlesRequest.Page)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get category by name", http.StatusInternalServerError)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -175,7 +175,7 @@ func GetArticlesByCategoryHandler(w http.ResponseWriter, r *http.Request) {
 func GetCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
 
-	categories, err := GetCategories()
+	categories, err := getCategories()
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get categories", http.StatusInternalServerError)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -193,15 +193,15 @@ func LikeArticleHandler(w http.ResponseWriter, r *http.Request) {
 	Util.CheckEmptyAndSendHttpResponse(sessionToken, w, "Authorization header is required", http.StatusUnauthorized)
 
 	userId := users.GetUserIdFromSessionToken(sessionToken)
-	liked, err := CheckIfUserLikedArticle(int(id), userId)
+	liked, err := checkIfUserLikedArticle(int(id), userId)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to check if user liked article", http.StatusInternalServerError)
 
 	if liked {
-		err := DeleteLikeFromArticle(int(id), userId)
+		err := deleteLikeFromArticle(int(id), userId)
 		Util.CheckErrorAndSendHttpResponse(err, w, "Failed to remove like from article", http.StatusInternalServerError)
 		return
 	}
-	err = AddLikeToArticle(int(id), userId)
+	err = addLikeToArticle(int(id), userId)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to add like to article", http.StatusInternalServerError)
 }
 
@@ -221,7 +221,7 @@ func CommentArticleHandler(w http.ResponseWriter, r *http.Request) {
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
 	Util.CheckEmptyAndSendHttpResponse(comment.Content, w, "Comment content is required", http.StatusBadRequest)
 
-	err = AddCommentToArticle(int(id), userId, comment.Content)
+	err = addCommentToArticle(int(id), userId, comment.Content)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to insert comment", http.StatusInternalServerError)
 }
 
@@ -236,15 +236,31 @@ func ReadLaterArticleHandler(writer http.ResponseWriter, request *http.Request) 
 
 	userID := users.GetUserIdFromSessionToken(sessionToken)
 
-	inReadLater, err := IsArticleInReadLater(userID, int(id))
+	inReadLater, err := isArticleInReadLater(userID, int(id))
 	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to check if article is in read later", http.StatusInternalServerError)
 
 	if inReadLater {
-		err := RemoveArticleFromReadLater(userID, int(id))
+		err := removeArticleFromReadLater(userID, int(id))
 		Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to remove article from read later", http.StatusInternalServerError)
 		return
 	}
 
-	err = AddArticleToReadLater(userID, int(id))
+	err = addArticleToReadLater(userID, int(id))
 	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to add article to read later", http.StatusInternalServerError)
+}
+
+func GetReadLaterArticlesHandler(writer http.ResponseWriter, request *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
+
+	sessionToken := request.Header.Get("Authorization")
+	Util.CheckEmptyAndSendHttpResponse(sessionToken, writer, "Authorization header is required", http.StatusUnauthorized)
+
+	userID := users.GetUserIdFromSessionToken(sessionToken)
+
+	articles, err := getReadLaterArticles(userID)
+	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to get read later articles", http.StatusInternalServerError)
+
+	writer.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(writer).Encode(articles)
+	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to encode articles", http.StatusInternalServerError)
 }
