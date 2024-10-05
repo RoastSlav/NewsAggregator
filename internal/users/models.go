@@ -21,3 +21,10 @@ type UserLogin struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+type Session struct {
+	ID           int       `db:"id"`
+	UserID       int       `db:"user_id"`
+	SessionToken string    `db:"session"`
+	CreatedAt    time.Time `db:"created_at"`
+}

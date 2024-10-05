@@ -182,6 +182,10 @@ func GetCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 func LikeArticleHandler(w http.ResponseWriter, r *http.Request) {
 	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
 
+	if !users.CheckIfUserIsLoggedIn(r) {
+		http.Error(w, "Authorization header is required", http.StatusUnauthorized)
+	}
+
 	articleID := r.PathValue("id")
 	id, _ := strconv.ParseInt(articleID, 0, 64)
 
@@ -204,6 +208,10 @@ func LikeArticleHandler(w http.ResponseWriter, r *http.Request) {
 func CommentArticleHandler(w http.ResponseWriter, r *http.Request) {
 	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
 
+	if !users.CheckIfUserIsLoggedIn(r) {
+		http.Error(w, "Authorization header is required", http.StatusUnauthorized)
+	}
+
 	articleID := r.PathValue("id")
 	id, _ := strconv.ParseInt(articleID, 0, 64)
 
@@ -221,94 +229,102 @@ func CommentArticleHandler(w http.ResponseWriter, r *http.Request) {
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to insert comment", http.StatusInternalServerError)
 }
 
-func ReadLaterArticleHandler(writer http.ResponseWriter, request *http.Request) {
-	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
+func ReadLaterArticleHandler(w http.ResponseWriter, r *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodPost, "Invalid r method", http.StatusMethodNotAllowed)
 
-	articleID := request.PathValue("id")
+	if !users.CheckIfUserIsLoggedIn(r) {
+		http.Error(w, "Authorization header is required", http.StatusUnauthorized)
+	}
+
+	articleID := r.PathValue("id")
 	id, _ := strconv.ParseInt(articleID, 0, 64)
 
-	sessionToken := request.Header.Get("Authorization")
-	Util.CheckEmptyAndSendHttpResponse(sessionToken, writer, "Authorization header is required", http.StatusUnauthorized)
+	sessionToken := r.Header.Get("Authorization")
+	Util.CheckEmptyAndSendHttpResponse(sessionToken, w, "Authorization header is required", http.StatusUnauthorized)
 
 	userID := users.GetUserIdFromSessionToken(sessionToken)
 
 	inReadLater, err := isArticleInReadLater(userID, int(id))
-	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to check if article is in read later", http.StatusInternalServerError)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to check if article is in read later", http.StatusInternalServerError)
 
 	if inReadLater {
 		err := removeArticleFromReadLater(userID, int(id))
-		Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to remove article from read later", http.StatusInternalServerError)
+		Util.CheckErrorAndSendHttpResponse(err, w, "Failed to remove article from read later", http.StatusInternalServerError)
 		return
 	}
 
 	err = addArticleToReadLater(userID, int(id))
-	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to add article to read later", http.StatusInternalServerError)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to add article to read later", http.StatusInternalServerError)
 }
 
-func GetReadLaterArticlesHandler(writer http.ResponseWriter, request *http.Request) {
-	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
+func GetReadLaterArticlesHandler(w http.ResponseWriter, r *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodGet, "Invalid r method", http.StatusMethodNotAllowed)
 
-	sessionToken := request.Header.Get("Authorization")
-	Util.CheckEmptyAndSendHttpResponse(sessionToken, writer, "Authorization header is required", http.StatusUnauthorized)
+	if !users.CheckIfUserIsLoggedIn(r) {
+		http.Error(w, "Authorization header is required", http.StatusUnauthorized)
+	}
+
+	sessionToken := r.Header.Get("Authorization")
+	Util.CheckEmptyAndSendHttpResponse(sessionToken, w, "Authorization header is required", http.StatusUnauthorized)
 
 	userID := users.GetUserIdFromSessionToken(sessionToken)
 
 	articles, err := getReadLaterArticles(userID)
-	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to get read later articles", http.StatusInternalServerError)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get read later articles", http.StatusInternalServerError)
 
-	writer.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(writer).Encode(articles)
-	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to encode articles", http.StatusInternalServerError)
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(articles)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to encode articles", http.StatusInternalServerError)
 }
 
-func GetCommentsForArticleHandler(writer http.ResponseWriter, request *http.Request) {
-	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodGet, "Invalid request method", http.StatusMethodNotAllowed)
+func GetCommentsForArticleHandler(w http.ResponseWriter, r *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodGet, "Invalid r method", http.StatusMethodNotAllowed)
 
-	articleID := request.PathValue("id")
+	articleID := r.PathValue("id")
 	id, _ := strconv.ParseInt(articleID, 0, 64)
 
 	comments, err := getCommentsForArticle(int(id))
-	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to get comments for article", http.StatusInternalServerError)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get comments for article", http.StatusInternalServerError)
 
-	writer.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(writer).Encode(comments)
-	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to encode comments", http.StatusInternalServerError)
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(comments)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to encode comments", http.StatusInternalServerError)
 }
 
-func AddCategoryHandler(writer http.ResponseWriter, request *http.Request) {
-	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
+func AddCategoryHandler(w http.ResponseWriter, r *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodPost, "Invalid r method", http.StatusMethodNotAllowed)
 
 	var category CategoryRequest
-	err := json.NewDecoder(request.Body).Decode(&category)
-	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to decode request body", http.StatusBadRequest)
+	err := json.NewDecoder(r.Body).Decode(&category)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode r body", http.StatusBadRequest)
 
-	Util.CheckEmptyAndSendHttpResponse(category.Name, writer, "Category name is required", http.StatusBadRequest)
+	Util.CheckEmptyAndSendHttpResponse(category.Name, w, "Category name is required", http.StatusBadRequest)
 
 	err = insertCategory(&category)
-	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to insert category", http.StatusInternalServerError)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to insert category", http.StatusInternalServerError)
 }
 
-func RemoveCategoryHandler(writer http.ResponseWriter, request *http.Request) {
-	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
+func RemoveCategoryHandler(w http.ResponseWriter, r *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodPost, "Invalid r method", http.StatusMethodNotAllowed)
 
 	var category CategoryRequest
-	err := json.NewDecoder(request.Body).Decode(&category)
-	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to decode request body", http.StatusBadRequest)
+	err := json.NewDecoder(r.Body).Decode(&category)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode r body", http.StatusBadRequest)
 
-	Util.CheckEmptyAndSendHttpResponse(category.Name, writer, "Category name is required", http.StatusBadRequest)
+	Util.CheckEmptyAndSendHttpResponse(category.Name, w, "Category name is required", http.StatusBadRequest)
 
 	err = deleteCategory(&category)
-	Util.CheckErrorAndSendHttpResponse(err, writer, "Failed to delete category", http.StatusInternalServerError)
+	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to delete category", http.StatusInternalServerError)
 }
 
-func UpdateCategoryHandler(writer http.ResponseWriter, request *http.Request) {
-	Util.CheckHttpMethodAndSendHttpResponse(request, writer, http.MethodPost, "Invalid request method", http.StatusMethodNotAllowed)
+func UpdateCategoryHandler(w http.ResponseWriter, r *http.Request) {
+	Util.CheckHttpMethodAndSendHttpResponse(r, w, http.MethodPost, "Invalid r method", http.StatusMethodNotAllowed)
 
-	categoryName := request.PathValue("name")
-	Util.CheckEmptyAndSendHttpResponse(categoryName, writer, "Category name is required", http.StatusBadRequest)
+	categoryName := r.PathValue("name")
+	Util.CheckEmptyAndSendHttpResponse(categoryName, w, "Category name is required", http.StatusBadRequest)
 
 	_, err := getCategoryByName(categoryName)
-	Util.CheckErrorAndSendHttpResponse(err, writer, "No category with that name", http.StatusBadRequest)
+	Util.CheckErrorAndSendHttpResponse(err, w, "No category with that name", http.StatusBadRequest)
 
 	FetchArticlesFromNewsAPI(categoryName)
 }

@@ -68,7 +68,7 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("User logged in")
 
 	sessionToken := generateSessionToken()
-	err = InsertSessionToken(sessionToken, user.ID)
+	err = insertSessionToken(sessionToken, user.ID)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to insert session token", http.StatusInternalServerError)
 
 	w.Header().Set("Authorization", sessionToken)
@@ -87,4 +87,19 @@ func GetUserIdFromSessionToken(sessionToken string) int {
 	Util.CheckErrorAndLog(err, "Failed to get user id from session token")
 
 	return id
+}
+
+func CheckIfUserIsLoggedIn(r *http.Request) bool {
+	sessionToken := r.Header.Get("Authorization")
+	if sessionToken == "" {
+		return false
+	}
+
+	session, err := getSessionByToken(sessionToken)
+	Util.CheckErrorAndSendHttpResponse(err, nil, "Failed to get session by token", http.StatusInternalServerError)
+
+	if session.CreatedAt.Add(time.Hour * 24).Before(time.Now()) {
+		return false
+	}
+	return true
 }
