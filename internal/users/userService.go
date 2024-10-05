@@ -38,7 +38,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt:    time.Now(),
 	}
 
-	err = InsertUser(&userDB)
+	err = insertUser(&userDB)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to insert user", http.StatusInternalServerError)
 
 	log.Printf("User registered. Username:%s, Email:%s \n", userDB.Username, userDB.Email)
@@ -59,7 +59,7 @@ func LoginUserHandler(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&userLogin)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to decode request body", http.StatusBadRequest)
 
-	user, err := GetUserByEmail(userLogin.Email)
+	user, err := getUserByEmail(userLogin.Email)
 	Util.CheckErrorAndSendHttpResponse(err, w, "Failed to get user", http.StatusInternalServerError)
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(userLogin.Password))
