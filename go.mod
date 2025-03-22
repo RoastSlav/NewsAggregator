@@ -7,9 +7,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/robfig/cron/v3 v3.0.0
-	golang.org/x/crypto v0.27.0
+	golang.org/x/crypto v0.31.0
 )
 
-require (
-	filippo.io/edwards25519 v1.1.0 // indirect
-)
+require filippo.io/edwards25519 v1.1.0 // indirect
